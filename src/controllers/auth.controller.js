@@ -1,3 +1,5 @@
+const signupSchema = require('../validators/auth.validator');
+
 const login = async (req, res) => {
     console.log(req.body.email);
     console.log(req.body.password);
@@ -8,10 +10,10 @@ const login = async (req, res) => {
 }
 
 const signup = async (req, res) => {
-    console.log(req.body.email);
-    console.log(req.body.password);
+    const result = signupSchema.safeParse(req.body);
+    console.log(result)
     res.json({
-        message: "login is working properly"
+        message: "signup is working properly"
     })
 }
 
