@@ -1,3 +1,4 @@
+const User = require('../models/user.model');
 const signupSchema = require('../validators/auth.validator');
 
 const login = async (req, res) => {
@@ -12,9 +13,18 @@ const login = async (req, res) => {
 const signup = async (req, res) => {
     const result = signupSchema.safeParse(req.body);
     console.log(result)
+
+    const user = new User(req.body);
+
+    const savedUser = await user.save();
+
+console.log(savedUser.collection.name);
+
+    console.log(user);
     res.json({
         message: "signup is working properly"
     })
+    
 }
 
 module.exports = {login, signup};
