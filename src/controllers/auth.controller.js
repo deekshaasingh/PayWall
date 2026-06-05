@@ -1,5 +1,6 @@
 const User = require('../models/user.model');
 const signupSchema = require('../validators/auth.validator');
+const bcrypt = require('bcryptjs');
 
 const login = async (req, res) => {
     console.log(req.body.email);
@@ -14,11 +15,24 @@ const signup = async (req, res) => {
     const result = signupSchema.safeParse(req.body);
     console.log(result)
 
+    const existingUser = await User.findOne({
+        email: req.body.email
+    });
+
+    const hashedPassword = await bcrypt.hash(
+        req.body.password,
+        10
+    )
+
+    req.body.password = hashedPassword;
+
     const user = new User(req.body);
 
-    const savedUser = await user.save();
+    if(existingUser){
+        res.send("Email is already registered!");
+    }
 
-console.log(savedUser.collection.name);
+    const savedUser = await user.save();
 
     console.log(user);
     res.json({
