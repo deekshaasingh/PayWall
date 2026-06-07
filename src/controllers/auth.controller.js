@@ -1,6 +1,7 @@
 const User = require('../models/user.model');
 const signupSchema = require('../validators/auth.validator');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const signup = async (req, res) => {
     const result = signupSchema.safeParse(req.body);
@@ -52,9 +53,18 @@ const login = async (req, res) => {
 
     console.log(isMatch);
 
-    res.json({
-        message: "login is working properly"
-    })
+    const token = jwt.sign(
+        {
+            userId: loggedUser._id,
+        },
+
+        process.env.JWT_SECRET, {
+            expiresIn: "1h"
+        }
+    )
+
+    console.log(token)
+    
 }
 
 module.exports = {login, signup};
