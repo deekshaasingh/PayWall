@@ -45,14 +45,6 @@ const login = async (req, res) => {
 
     const isMatch = await bcrypt.compare(req.body.password, loggedUser.password);
 
-    if(isMatch){
-        res.send("User logged in successfully!");
-    }
-    
-    else res.send("User does not exist!");
-
-    console.log(isMatch);
-
     const token = jwt.sign(
         {
             userId: loggedUser._id,
@@ -65,6 +57,17 @@ const login = async (req, res) => {
 
     console.log(token)
     
+
+    if(isMatch){
+        res.json({
+        message: "User logged in successfully!",
+        token: token
+})
+    }
+    
+    else res.send("User does not exist!");
+
+    console.log(isMatch);
 }
 
 module.exports = {login, signup};

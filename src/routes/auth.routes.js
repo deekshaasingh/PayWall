@@ -11,7 +11,9 @@ router.post('/login', authController.login)
 router.post('/signup', authController.signup)
 
 router.get('/wallet', authMiddleware, (req,res)=>{
-    res.send("Wallet route");
-});
+    console.log(req.userId);
+
+    res.send("Wallet Route");
+})
 
 module.exports = router;
