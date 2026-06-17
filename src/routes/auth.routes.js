@@ -10,10 +10,8 @@ router.post('/login', authController.login)
 
 router.post('/signup', authController.signup)
 
-router.get(
-    '/wallet',
-    authMiddleware,
-    walletController.getWallet
-);
+router.get('/wallet', authMiddleware, walletController.getWallet);
+
+router.post('/wallet/add-withdraw', authMiddleware, walletController.updateBalance);
 
 module.exports = router;
