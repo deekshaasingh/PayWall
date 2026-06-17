@@ -14,4 +14,6 @@ router.get('/wallet', authMiddleware, walletController.getWallet);
 
 router.post('/wallet/add-withdraw', authMiddleware, walletController.updateBalance);
 
+router.post('/transfer', authMiddleware, walletController.transferMoney);
+
 module.exports = router;
