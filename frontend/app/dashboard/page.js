@@ -11,6 +11,7 @@ export default function Dashboard() {
 
   const [balance, setBalance] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [insights, setInsights] = useState(null);
   const [addAmount, setAddAmount] = useState("");
   const [receiverEmail, setReceiverEmail] = useState("");
   const [sendAmount, setSendAmount] = useState("");
@@ -24,8 +25,10 @@ export default function Dashboard() {
     try {
       const wallet = await api.getWallet();
       const history = await api.getTransactions();
+      const stats = await api.getInsights();
       setBalance(wallet.balance);
       setTransactions(history.transactions);
+      setInsights(stats);
     } catch (err) {
       setMessage({ type: "error", text: err.message });
     }
@@ -91,6 +94,50 @@ export default function Dashboard() {
           ₹{balance !== null ? balance.toLocaleString("en-IN") : "—"}
         </p>
       </div>
+
+      {insights && (
+        <div className="bg-[var(--panel)] border border-[var(--panel-light)] rounded-xl p-6 mb-6">
+          <h3 className="font-display font-bold mb-4">This week</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div>
+              <p className="text-[var(--mist)] text-xs mb-1">Sent</p>
+              <p className="font-mono-num text-xl">
+                ₹{insights.thisWeekSent.toLocaleString("en-IN")}
+              </p>
+              <p
+                className="text-xs mt-1 font-mono-num"
+                style={{
+                  color: insights.percentChange <= 0 ? "var(--grow)" : "var(--coral)",
+                }}
+              >
+                {insights.percentChange >= 0 ? "+" : ""}
+                {insights.percentChange}% vs last week
+              </p>
+            </div>
+            <div>
+              <p className="text-[var(--mist)] text-xs mb-1">Received</p>
+              <p className="font-mono-num text-xl">
+                ₹{insights.thisWeekReceived.toLocaleString("en-IN")}
+              </p>
+            </div>
+            <div>
+              <p className="text-[var(--mist)] text-xs mb-1">Transfers made</p>
+              <p className="font-mono-num text-xl">{insights.transactionCountThisWeek}</p>
+            </div>
+            <div>
+              <p className="text-[var(--mist)] text-xs mb-1">Most sent to</p>
+              <p className="text-sm truncate">
+                {insights.topCounterparty || "—"}
+              </p>
+              {insights.topCounterparty && (
+                <p className="font-mono-num text-xs text-[var(--mist)] mt-0.5">
+                  ₹{insights.topCounterpartyAmount.toLocaleString("en-IN")} total
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-4 mb-6">
         <form

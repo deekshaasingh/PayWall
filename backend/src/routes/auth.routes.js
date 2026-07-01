@@ -18,4 +18,6 @@ router.post('/transfer', authMiddleware, walletController.transferMoney);
 
 router.get('/transactions', authMiddleware, walletController.getTransactionHistory);
 
+router.get('/insights', authMiddleware, walletController.getInsights);
+
 module.exports = router;

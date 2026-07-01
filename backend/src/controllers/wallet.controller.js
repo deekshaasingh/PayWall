@@ -85,6 +85,72 @@ const getTransactionHistory = async (req, res) => {
     }
 };
 
+const getInsights = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+
+        const now = new Date();
+        const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+        const fourteenDaysAgo = new Date(now - 14 * 24 * 60 * 60 * 1000);
+
+        const thisWeekSentTx = await Transaction.find({
+            sender: user.email,
+            createdAt: { $gte: sevenDaysAgo, $lte: now }
+        });
+
+        const lastWeekSentTx = await Transaction.find({
+            sender: user.email,
+            createdAt: { $gte: fourteenDaysAgo, $lt: sevenDaysAgo }
+        });
+
+        const thisWeekSent = thisWeekSentTx.reduce((sum, tx) => sum + tx.amount, 0);
+        const lastWeekSent = lastWeekSentTx.reduce((sum, tx) => sum + tx.amount, 0);
+
+        let percentChange = 0;
+        if (lastWeekSent > 0) {
+            percentChange = Math.round(((thisWeekSent - lastWeekSent) / lastWeekSent) * 100);
+        } else if (thisWeekSent > 0) {
+            percentChange = 100;
+        }
+
+        const thisWeekReceivedTx = await Transaction.find({
+            receiver: user.email,
+            createdAt: { $gte: sevenDaysAgo, $lte: now }
+        });
+
+        const thisWeekReceived = thisWeekReceivedTx.reduce((sum, tx) => sum + tx.amount, 0);
+
+        const allSentTx = await Transaction.find({ sender: user.email });
+
+        const totals = {};
+        allSentTx.forEach((tx) => {
+            totals[tx.receiver] = (totals[tx.receiver] || 0) + tx.amount;
+        });
+
+        let topCounterparty = null;
+        let topCounterpartyAmount = 0;
+
+        for (const [email, amount] of Object.entries(totals)) {
+            if (amount > topCounterpartyAmount) {
+                topCounterparty = email;
+                topCounterpartyAmount = amount;
+            }
+        }
+
+        res.status(200).json({
+            thisWeekSent,
+            lastWeekSent,
+            percentChange,
+            thisWeekReceived,
+            transactionCountThisWeek: thisWeekSentTx.length,
+            topCounterparty,
+            topCounterpartyAmount
+        });
+    } catch (err) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};
+
 module.exports = {
-    getWallet, updateBalance, transferMoney, getTransactionHistory
+    getWallet, updateBalance, transferMoney, getTransactionHistory, getInsights
 };

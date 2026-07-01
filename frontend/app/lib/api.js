@@ -37,3 +37,5 @@ export const transferMoney = (receiverEmail, amount) =>
   request("/transfer", { method: "POST", body: JSON.stringify({ receiverEmail, amount }) });
 
 export const getTransactions = () => request("/transactions");
+
+export const getInsights = () => request("/insights");
